@@ -1,47 +1,31 @@
 <?php
 
-namespace App\Models;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-
-class User extends Authenticatable
+return new class extends Migration
 {
-    use Notifiable;
-
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',
-        'contact',
-        'gender',
-        'address',
-        'avatar',
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected function casts(): array
+    public function up(): void
     {
-        return [
-            'password' => 'hashed',
-        ];
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('role')->default('user');
+            $table->string('contact')->nullable();
+            $table->string('gender')->nullable();
+            $table->string('address')->nullable();
+            $table->string('avatar')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
+        });
     }
 
-    public function schedules()
+    public function down(): void
     {
-        return $this->hasMany(Schedule::class);
+        Schema::dropIfExists('users');
     }
-
-    public function getInitialsAttribute(): string
-    {
-        return collect(explode(' ', $this->name))
-            ->map(fn($w) => strtoupper($w[0]))
-            ->take(2)
-            ->implode('');
-    }
-}
+};
